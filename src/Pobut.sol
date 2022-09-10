@@ -48,6 +48,11 @@ contract Pobut {
         date = project.date();
     }
 
+    function getPool(uint256 id_, address asset_, uint256 amount_) public returns(address) {
+        IPoolAddressesProvider provider = IPoolAddressesProvider(address(0xc4dCB5126a3AfEd129BC3668Ea19285A9f56D15D));
+        return provider.getPool();
+    }
+
     function deposit(uint256 id_, address asset_, uint256 amount_) public {
         require(projects[id_] != address(0), "Project Not Found");
 
@@ -63,5 +68,17 @@ contract Pobut {
         }
 
         pool.deposit(asset_, amount_, address(project), 0);
+    }
+
+    function withdraw(uint256 id_, address asset_) public {
+        PobutProject project = PobutProject(projects[id_]);
+
+        require(projects[id_] != address(0), "Project Not Found");
+        require(projects[id_].owner == msg.sender, "Only Owner");
+
+        IPoolAddressesProvider provider = IPoolAddressesProvider(address(0xc4dCB5126a3AfEd129BC3668Ea19285A9f56D15D));
+        IPool pool = IPool(provider.getPool());
+
+        pool.withdraw(asset_, type(uint256).max, msg.sender);
     }
 }
